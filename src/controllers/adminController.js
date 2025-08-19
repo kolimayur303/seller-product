@@ -18,6 +18,7 @@ const registerAdmin = async (req, res, next) => {
       name,
       email,
       password: hashedPassword,
+      role: "admin",
     });
 
     const token = jwt.sign({ id: admin._id, role: 'admin' }, process.env.JWT_SECRET, {
@@ -41,7 +42,6 @@ const registerAdmin = async (req, res, next) => {
 const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const admin = await User.findOne({ email });
 
     if (admin.role !== 'admin') {
@@ -103,6 +103,7 @@ const createSeller = async (req, res) => {
       skills,
       password: hash,
       role: "seller",
+      createdBy: req.user._id
     });
     await seller.save();
     res.status(201).json({ message: "Seller created successfully" });
@@ -115,8 +116,13 @@ const listSellers = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-  const sellers = await User.find({ role: "seller" }).skip(skip).limit(limit);
-  res.json(sellers);
+  const sellers = await User.find({ role: "seller" }).select("-password").skip(skip).limit(limit);
+  res.json({
+    page,
+    limit,
+    count: sellers.length,
+    sellers,
+  });
 };
 
 module.exports = {

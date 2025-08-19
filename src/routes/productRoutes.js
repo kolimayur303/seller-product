@@ -5,7 +5,6 @@ const { addProduct, listProducts, deleteProduct } = require("../controllers/prod
 const { upload } = require("../uploads/upload");
 const { validateAddProduct } = require('../middleware/validationMiddleware');
 
-
 router.post("/products", auth(["seller"]), upload.array("images"), validateAddProduct, addProduct);
 router.get("/products", auth(["seller"]), listProducts);
 router.delete("/products/:id", auth(["seller"]), deleteProduct);

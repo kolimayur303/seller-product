@@ -3,7 +3,7 @@ const app = require("./app");
 const PORT = process.env.PORT;
 const MongoDB = require("./config/db");
 
-MongoDB()
+MongoDB()   
   .then(() => {
     console.log("MongoDB connected");
     app.listen(PORT, () => {

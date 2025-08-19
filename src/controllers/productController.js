@@ -17,21 +17,26 @@ const addProduct = async (req, res) => {
       seller: req.user.id,
       brands: brandData,
     });
-    await product.save();
-    res.status(201).json({ message: "Product added" });
+    const result = await product.save();
+    res.status(201).json({ message: "Product added", result });
   } catch (err) {
     res.status(500).json({ message: "Error adding product" });
   }
 };
 
 const listProducts = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-  const products = await Product.find({ seller: req.user.id })
-    .skip(skip)
-    .limit(limit);
-  res.json(products);
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      Product.find({ seller: req.user.id }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Product.countDocuments({ seller: req.user.id })
+    ]);
+    res.json({ status:true, limit, total, pages: Math.ceil(total/limit), data: items });
+  } catch (err) {
+    res.status(500).json({ message: "Error adding product" });
+  }
 };
 
 const deleteProduct = async (req, res) => {

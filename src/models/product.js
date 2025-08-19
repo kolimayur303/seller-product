@@ -12,6 +12,9 @@ const productSchema = new mongoose.Schema({
       image: String,
     },
   ],
-}, { versionKey: false });
+},{ 
+    versionKey: false, 
+    timestamps: true
+});
 
 module.exports = mongoose.model("Product", productSchema);

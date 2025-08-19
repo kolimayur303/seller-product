@@ -28,12 +28,36 @@ const validateCreateSeller = [
     .isMobilePhone().withMessage('Valid mobile number is required'),
   body('country').notEmpty().withMessage('Country is required'),
   body('state').notEmpty().withMessage('State is required'),
-  body('skills').isArray({ min: 1 }).withMessage('At least one skill is required'),
+  // body('skills').isArray({ min: 1 }).withMessage('At least one skill is required'),
+  body('skills').custom((v, { req }) => {
+    if (!req.body.skills) throw new Error('Skills are required');
+    const arr = Array.isArray(req.body.skills) ? req.body.skills : String(req.body.skills).split(',').map(s=>s.trim());
+    if (!arr.length) throw new Error('At least one skill is required');
+    req.body.skills = arr;
+    return true;
+  }),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  handleValidation
+];
+
+const validateCreateBuyer = [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('mobileNo')
+    .isMobilePhone().withMessage('Valid mobile number is required'),
+  body('country').notEmpty().withMessage('Country is required'),
+  body('state').notEmpty().withMessage('State is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   handleValidation
 ];
 
 const validateSellerLogin = [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').notEmpty().withMessage('Password is required'),
+  handleValidation
+];
+
+const validateBuyerLogin = [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required'),
   handleValidation
@@ -65,4 +89,6 @@ module.exports = {
   validateCreateSeller,
   validateSellerLogin,
   validateAddProduct,
+  validateCreateBuyer,
+  validateBuyerLogin
 };
